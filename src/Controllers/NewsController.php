@@ -13,6 +13,7 @@ class NewsController
   public function __construct() {
     $conn = new Conn();
     $this->pdo = $conn->conn();
+    
   }
   public function index() 
   {
@@ -29,12 +30,13 @@ class NewsController
     if($_SERVER['REQUEST_METHOD'] !== 'POST') {
       return $this->sendJsonResponse(['Error: ' => 'Método não permitido'], 405);
     }
-    
-    $json = file_get_contents('php://input');
-    $data = json_decode($json, true);
+       
 
     try {
       $stmt = $this->pdo->prepare("INSERT INTO noticias (manchete, subtitulo, lide) VALUES (:manchete, :subtitulo, :lide)");
+
+      $json = file_get_contents('php://input');
+      $data = json_decode($json, true);
 
       $success = $stmt->execute([
         ':manchete' => $data['manchete'],
@@ -100,13 +102,49 @@ class NewsController
       }
   }
 
-  public function deleteNews(): void
+  public function deleteNews()
   {
-    
+      // Verifica se é uma requisição DELETE
+      if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
+          return $this->sendJsonResponse(['error' => 'Método não permitido'], 405);
+      }
+
+      // Obtém os dados da requisição
+      $json = file_get_contents('php://input');
+      $data = json_decode($json, true);
+
+      // Validação básica
+      if (empty($data['id'])) {
+          return $this->sendJsonResponse(['error' => 'ID da notícia é obrigatório'], 400);
+      }
+
+      try {
+          $stmt = $this->pdo->prepare("DELETE FROM noticias WHERE id = :id");
+                    
+          $success = $stmt->execute([':id' => $data['id']]);
+
+          if ($success) {
+              if ($stmt->rowCount() > 0) {
+                  return $this->sendJsonResponse([
+                      'success' => true,
+                      'message' => 'Notícia deletada com sucesso'
+                  ]);
+              }
+              return $this->sendJsonResponse([
+                  'error' => 'Notícia não encontrada'
+              ], 404);
+          }
+          
+          return $this->sendJsonResponse(['error' => 'Falha ao deletar notícia'], 500);
+          
+      } catch (PDOException $e) {
+          return $this->sendJsonResponse([
+              'error' => 'Erro no banco de dados',
+              'details' => $e->getMessage()
+          ], 500);
+      }
   }
-  
-  
-  
+   
   private function sendJsonResponse($data, $statusCode = 200)
   {
       header('Content-Type: application/json');

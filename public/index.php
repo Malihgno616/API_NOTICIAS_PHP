@@ -20,4 +20,7 @@ switch($_SERVER['REQUEST_URI'] && $_SERVER['REQUEST_METHOD']){
   case $_SERVER['REQUEST_URI'] === '/API_NOTICIAS/public/news/edit' && $_SERVER['REQUEST_METHOD'] === 'PUT':
     $controller->editNews();
     break;
+  case $_SERVER['REQUEST_URI'] === '/API_NOTICIAS/public/news/delete' && $_SERVER['REQUEST_METHOD'] === 'DELETE':
+    $controller->deleteNews();
+    break;
 }
