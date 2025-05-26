@@ -10,12 +10,14 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $controller = new NewsController();
 
-switch ($_SERVER['REQUEST_URI'] && $_SERVER['REQUEST_METHOD']){
+switch($_SERVER['REQUEST_URI'] && $_SERVER['REQUEST_METHOD']){
   case $_SERVER['REQUEST_URI'] === '/API_NOTICIAS/public/news' && $_SERVER['REQUEST_METHOD'] === 'GET':
     $controller->index();
     break;
   case $_SERVER['REQUEST_URI'] === '/API_NOTICIAS/public/news/send' && $_SERVER['REQUEST_METHOD'] === 'POST':
     $controller->send();
     break;
-
+  case $_SERVER['REQUEST_URI'] === '/API_NOTICIAS/public/news/edit' && $_SERVER['REQUEST_METHOD'] === 'PUT':
+    $controller->editNews();
+    break;
 }
